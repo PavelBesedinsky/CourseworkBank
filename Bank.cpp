@@ -27,7 +27,7 @@ void Bank::CreateCustomerAccounts()
 
 	for (int i = 0; i < _customerN; i++)
 		for (int j = 0; j < 2; j++)
-			_customerAccount[i][j] = 2;
+			_customerAccount[i][j] = rand();
 
 	printf("Bank: %d has created\n", _bankID);
 }

@@ -1,12 +1,4 @@
-﻿Build started 05.04.2019 16:23:31.
-     1>Project "E:\ivtf3g46\Besedinsky\MPI_BANK\MPI_BANK\MPI_BANK.vcxproj" on node 2 (Build target(s)).
-     1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I"C:\Program Files (x86)\Microsoft SDKs\MPI\Include\\" /I"C:\Program Files (x86)\Microsoft SDKs\MPI\Include\\x86" /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt Source.cpp
-         Source.cpp
-     1>e:\ivtf3g46\besedinsky\mpi_bank\mpi_bank\source.cpp(116): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
-     1>e:\ivtf3g46\besedinsky\mpi_bank\mpi_bank\source.cpp(117): error C2065: '_MyQuery' : undeclared identifier
-     1>Done Building Project "E:\ivtf3g46\Besedinsky\MPI_BANK\MPI_BANK\MPI_BANK.vcxproj" (Build target(s)) -- FAILED.
-
-Build FAILED.
-
-Time Elapsed 00:00:00.63
+﻿  Source.cpp
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(124): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(133): warning C4244: инициализация: преобразование "int" в "float", возможна потеря данных
+  MPI_BANK.vcxproj -> I:\Programming\Projects\MPI\MPI_BANK\Debug\MPI_BANK.exe

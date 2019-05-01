@@ -2,6 +2,8 @@
 
 #include <mpi.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include "Account.h"
 class Bank
 {
 public:

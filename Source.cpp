@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <time.h>
 #include "Bank.h"
+#include "Query.h"
 // new dev branch
 
 int main(int argc, char **argv)
@@ -68,6 +69,7 @@ int main(int argc, char **argv)
 	}
 
 	int count = 0;
+	_flag = false;
 	while (_flag)
 	{
 		if (rank == 0)							// Процесс Сервер
