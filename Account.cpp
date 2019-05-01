@@ -27,13 +27,44 @@ int Account::Sum()
 
 int Account::Sum(int value)
 {
-	if (_accountSum += value < 0)
+	if ((_accountSum + value) < 0)
 	{
 		return -1;
 	}
 	else
 		_accountSum += value;
 	return 1;
+}
+
+Account Account::operator+(int value)
+{
+	_accountSum += value;
+	return;
+}
+
+Account Account::operator-(int value)
+{
+	_accountSum -= value;
+	return;
+}
+
+Account Account::operator=(int value)
+{
+	if(value > 0)
+		_accountSum = value;
+	else
+	{
+		printf("ERROR: operator = in class Account, value < 0");
+	}
+	return;
+}
+
+Account::Account()
+{
+	_accountID = 0;
+	_accountSum = 0;
+	/*ID(0);
+	Sum(0);*/
 }
 
 
