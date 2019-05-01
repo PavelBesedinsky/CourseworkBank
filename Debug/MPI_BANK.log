@@ -1,4 +1,17 @@
-﻿  Source.cpp
-i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(124): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
-i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(133): warning C4244: инициализация: преобразование "int" в "float", возможна потеря данных
+﻿  Account.cpp
+  Bank.cpp
+  Query.cpp
+  Source.cpp
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(12): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(77): warning C4477: "printf": в строке форматирования "%d" требуется аргумент типа "int", но вариативный аргумент "1" имеет тип "const _Elem *"
+          with
+          [
+              _Elem=char
+          ]
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(77): warning C4473: "printf": передано недостаточно аргументов для строки формата
+  i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(77): note: заполнители и их параметры ожидают переменное число аргументов в количестве 2, но было предоставлено 1
+  i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(77): note: отсутствующий вариативный аргумент "2" требуется для строки форматирования "%s"
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(138): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(147): warning C4244: инициализация: преобразование "int" в "float", возможна потеря данных
+  Создание кода...
   MPI_BANK.vcxproj -> I:\Programming\Projects\MPI\MPI_BANK\Debug\MPI_BANK.exe

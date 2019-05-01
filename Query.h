@@ -24,6 +24,7 @@ public:
 	void Sum(int value);
 	int Result();
 	void Result(int value);
+	int TextLength();
 	std::string Text();
 	void Text(std::string string);
 	bool IsMistake(int value);

@@ -47,6 +47,11 @@ void Query::Result(int value)
 		_qResult = 4;
 }
 
+int Query::TextLength()
+{
+	return _qText.length();
+}
+
 std::string Query::Text()
 {
 	return _qText;

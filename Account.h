@@ -14,9 +14,6 @@ public:
 	int ID(int value);		// Функция установка идентификатора аккаунта
 	int Sum();				// Функция получения счета аккаунта
 	int Sum(int value);		// Функция установка счета аккаунта
-	Account operator+(int value);
-	Account operator-(int value);
-	Account operator=(int value);
 	Account();
 	Account(int id, int sum);
 	~Account();

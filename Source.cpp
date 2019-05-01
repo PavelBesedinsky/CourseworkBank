@@ -4,10 +4,12 @@
 #include <time.h>
 #include "Bank.h"
 #include "Query.h"
+#include <iostream>
 // new dev branch
 
 int main(int argc, char **argv)
 {
+	srand(time(NULL));
 	int size, rank;
 	MPI_Status status;
 	//Шапочка
@@ -47,6 +49,7 @@ int main(int argc, char **argv)
 	_rankT = _rankB + _bankN;
 
 	int query[3] = {0};		// Запрос: [Запрос][ID Клиента][Сумма]
+	
 
 	/*if (!rank)
 		printf("_rankB = %d _rankT = %d\n", _rankB, _rankT);*/
@@ -60,7 +63,7 @@ int main(int argc, char **argv)
 	{
 
 		_myTerminal = rank + _bankN;			// Определение номера терминала, с которым работает банк
-		bank = new Bank(1, rank, _myTerminal);
+		bank = new Bank(3, rank, _myTerminal);
 	}
 
 	if (rank >= _rankT)							// Процесс Терминал
