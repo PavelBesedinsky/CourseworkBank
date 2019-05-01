@@ -21,22 +21,13 @@ Bank::~Bank()
 
 void Bank::CreateCustomerAccounts()
 {
-	/*_customerAccount = new double*[_customerN];
-
-	for (int i = 0; i < _customerN; i++)
-		_customerAccount[i] = new double[2];
-
-	for (int i = 0; i < _customerN; i++)
-		for (int j = 0; j < 2; j++)
-			_customerAccount[i][j] = rand();*/
-
-
 	// Добавить чтение из файла
-	*customerAccounts = new Account(_bankID, 0)[_customerN];
+	customerAccounts = new Account[_customerN];
 	for (int i = 0; i < _customerN; i++)
 	{
-		customerAccounts[i].ID(_bankID + i);
-		customerAccounts[i].Sum(rand());
+		customerAccounts[i].ID(100 + _bankID + i);
+		customerAccounts[i].Sum(5000);
+		printf("I'm client %d from bank = %d; my id = %d; my sum = %d\n", i, _bankID, customerAccounts[i].ID(), customerAccounts[i].Sum());
 	}
 	
 	printf("Bank: %d has created\n", _bankID);
@@ -60,10 +51,6 @@ int Bank::getTerminal()
 
 bool Bank::IsCustomer(int customerID)
 {
-	/*for (int i = 0; i < _customerN; i++)
-		if (customerID == _customerAccount[i][0])
-			return true;
-	return false;*/
 	for (int i = 0; i < _customerN; i++)
 		if (customerID == customerAccounts[i].ID())
 			return true;
@@ -75,10 +62,7 @@ int Bank::Query(int request, int customerID, int value)
 	int answer;
 	switch (request)
 	{
-	case 1: // положить деньги на счет
-		//_customerAccount[FindCustomer(customerID)][1] += value; 
-		//answer = _customerAccount[FindCustomer(customerID)][1]; 
-		
+	case 1: // положить деньги на счет		
 		customerAccounts[FindCustomer(customerID)].Sum(value);		// Увеличивает значение суммы владельца счета на value
 		answer = customerAccounts[FindCustomer(customerID)].Sum();	// Возвращает текущую сумму на счете пользователя
 		Print(request);
@@ -102,11 +86,6 @@ int Bank::FindCustomer(int customerID)
 			indx = i;
 			break;
 		}
-		/*if (customerID == _customerAccount[i][0])
-		{
-			indx = i;
-			break;
-		}*/
 	return (indx != -1) ? indx : printf("\nMISTAKE:FindCustomer\n");
 }
 
