@@ -18,7 +18,8 @@ private:
 	int _bankID; // Номер банка
 	int _customerN; // Общее число клиентов
 	int _terminal;
-	double** _customerAccount; // Массив с счетами клиентов (ID клиента; Сумма)
+	//double** _customerAccount; // Массив с счетами клиентов (ID клиента; Сумма)
+	Account* customerAccounts;
 	void CreateCustomerAccounts();
 	int FindCustomer(int customerID);
 	void Print(int request);
