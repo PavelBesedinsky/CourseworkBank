@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <mpi.h>
 #include <stdlib.h>
+#include <iostream>
 // Запросы:
 // 0 - Положить деньги
 // 1 - Снять деньги
@@ -11,12 +12,23 @@
 // 4 - Запрос не выполненфы
 class Query
 {
-public:
+private:
 	int _qID;
 	int _qSum;
 	int _qResult;
-	char _qText[256];
-	Query(int ID, int Sum, int Result, char* Text);
+	std::string _qText;
+public:
+	int ID();
+	void ID(int value);
+	int Sum();
+	void Sum(int value);
+	int Result();
+	void Result(int value);
+	std::string Text();
+	void Text(std::string string);
+	bool IsMistake(int value);
+
+	Query();
 	~Query();
 };
 
