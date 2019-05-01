@@ -36,28 +36,6 @@ int Account::Sum(int value)
 	return 1;
 }
 
-Account Account::operator+(int value)
-{
-	_accountSum += value;
-	return;
-}
-
-Account Account::operator-(int value)
-{
-	_accountSum -= value;
-	return;
-}
-
-Account Account::operator=(int value)
-{
-	if(value > 0)
-		_accountSum = value;
-	else
-	{
-		printf("ERROR: operator = in class Account, value < 0");
-	}
-	return;
-}
 
 Account::Account()
 {
