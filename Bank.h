@@ -3,7 +3,10 @@
 #include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
 #include "Account.h"
+#include "QueryStruct.h"
+
 class Bank
 {
 public:
@@ -14,6 +17,7 @@ public:
 	int getTerminal();
 	bool IsCustomer(int customerID);
 	int Query(int request, int customerID, int value);
+	SQuery Query(SQuery query);
 private:
 	int _bankID; // Номер банка
 	int _customerN; // Общее число клиентов

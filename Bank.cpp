@@ -25,8 +25,8 @@ void Bank::CreateCustomerAccounts()
 	customerAccounts = new Account[_customerN];
 	for (int i = 0; i < _customerN; i++)
 	{
-		customerAccounts[i].ID(100 + _bankID + i);
-		customerAccounts[i].Sum(5000);
+		customerAccounts[i].ID(_bankID * 1000 + i);
+		customerAccounts[i].Sum(rand());
 		printf("I'm client %d from bank = %d; my id = %d; my sum = %d\n", i, _bankID, customerAccounts[i].ID(), customerAccounts[i].Sum());
 	}
 	
@@ -76,6 +76,58 @@ int Bank::Query(int request, int customerID, int value)
 	}
 	return answer;
 }
+
+SQuery Bank::Query(SQuery query)
+{
+	SQuery answer;
+	switch (query._qRequest)
+	{
+		case 1: // put money in the account	
+		{
+			customerAccounts[FindCustomer(query._qClientID)].Sum(query._qSum);		// Увеличивает значение суммы владельца счета на value
+			
+			answer._qResult = 1;
+			answer._qSum = customerAccounts[FindCustomer(query._qClientID)].Sum();
+			/*char string[] = { "Account got money" };
+			strncpy(answer._qText, string, strlen(string));
+			answer._qText[strlen(string)] = '0';*/
+			sprintf(query._qText, "Account got money in value = %d0", query._qSum);
+			Print(query._qRequest);
+			break;
+		}
+		case 2: // give money to the client
+		{
+			int requestSum = -query._qSum;
+			if (query._qSum > customerAccounts[FindCustomer(query._qClientID)].Sum())
+			{
+				/*char string[] = { "Account haven't enough money" };
+				strncpy(answer._qText, string, strlen(string));
+				answer._qText[strlen(string)] = '0';*/
+				sprintf(query._qText, "Account haven't enough money in value = %d0", query._qSum);
+				answer._qResult = 0;
+			}
+			else
+			{
+				/*char string[] = { "Take your money" };
+				strncpy(answer._qText, string, strlen(string));
+				answer._qText[strlen(string)] = '0';*/
+				sprintf(query._qText, "Take your money in value = %d0", query._qSum);
+				answer._qResult = 1;
+				customerAccounts[FindCustomer(query._qClientID)].Sum(requestSum);
+			}
+			Print(query._qRequest);
+			break;
+		}
+		case 3: // check the balance of the account
+		{
+			sprintf(query._qText, "Your balance is %d", customerAccounts[FindCustomer(query._qClientID)].Sum());
+			Print(query._qRequest);
+			break;
+		}
+	}
+	return answer;
+}
+
 
 int Bank::FindCustomer(int customerID)
 {
