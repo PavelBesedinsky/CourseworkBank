@@ -3,10 +3,16 @@
 #include <cstdio>
 #include <time.h>
 #include "Bank.h"
-#include "Query.h"
 #include <iostream>
 // new dev branch
 
+struct Query
+{
+	int _qID;			// Вид запроса
+	int _qSum;			// Сумма запроса
+	int _qResult;		// Результат запроса
+	char _qText[20];	// Текст ответы
+};
 int main(int argc, char **argv)
 {
 	srand(time(NULL));
@@ -49,10 +55,52 @@ int main(int argc, char **argv)
 	_rankT = _rankB + _bankN;
 
 	int query[3] = {0};		// Запрос: [Запрос][ID Клиента][Сумма]
-	
 
-	/*if (!rank)
-		printf("_rankB = %d _rankT = %d\n", _rankB, _rankT);*/
+	MPI_Datatype queryType;
+	MPI_Datatype typeArr[4] = { MPI_INT, MPI_INT, MPI_INT, MPI_CHAR };
+	int bsizeArr[4] = { 1, 1, 1, 20 };
+	MPI_Aint dispArr[4];
+	Query  _query;
+	_query._qID = 0;
+	_query._qResult = 0;
+	_query._qSum = 0;
+	_query._qText[0] = '0';
+	MPI_Address(&_query, dispArr);
+	MPI_Address(&_query, dispArr + 1);
+	MPI_Address(&_query, dispArr + 2);
+	MPI_Address(&_query, dispArr + 3);
+	MPI_Aint tmp = dispArr[0];
+	for (int i = 0; i < 4; i++)
+		dispArr[i] = dispArr[i] - tmp;
+	MPI_Type_struct(4, bsizeArr, dispArr, typeArr, &queryType);
+	MPI_Type_commit(&queryType);
+	if (rank == 0)
+	{
+		_query._qID = 1000;
+		_query._qSum = 2000;
+		_query._qText[0] = 'H';
+		_query._qText[1] = 'e';
+		_query._qText[2] = 'l';
+		_query._qText[3] = 'l';
+		_query._qText[4] = 'o';
+		_query._qText[5] = '0';
+		MPI_Send(&_query, 1, queryType, 1, msgtag, MPI_COMM_WORLD);
+	}
+	if (rank == 1)
+	{
+		MPI_Recv(&_query, 1, queryType, 0, msgtag, MPI_COMM_WORLD, MPI_STATUSES_IGNORE);
+		printf("RANK(%d): ID = %d Sum = %d\n", rank, _query._qID, _query._qSum);
+		printf("Word: ");
+		for (int i = 0; i < 20; i++)
+		{
+			char s = _query._qText[i];
+			if (s == '0')
+				break;
+			printf("%c", s);
+		}
+		printf("\n");
+	}
+	MPI_Type_free(&queryType);
 
 	if (rank == 0)								// Процесс Сервер
 	{
@@ -95,7 +143,7 @@ int main(int argc, char **argv)
 			MPI_Recv(query, 3, MPI_INT, MPI_ANY_SOURCE, msgtag, MPI_COMM_WORLD, &status);
 			if (status.MPI_SOURCE == bank->getTerminal()) // Если запрос отправлен от терминала
 			{
-				if (bank->IsCustomer(query[1]) == true) // Если клиент в базе данных есть
+				if (bank->IsCustomer(query[1])) // Если клиент в базе данных банка есть есть
 				{
 					// Ответить на запрос клиента
 					answer = bank->Query(query[0], query[1], query[3]);
@@ -143,9 +191,11 @@ int main(int argc, char **argv)
 			// Ответы:
 			// 3 - Запрос выполнен
 			// 4 - Запрос не выполненфы
+			
 			query[0] = _MyQuery;
 			query[1] = _MyID;
 			query[2] = _MySum;
+
 			// Отправить запрос банку
 			MPI_Send(query, 3, MPI_INT, _myBank, msgtag, MPI_COMM_WORLD);
 
