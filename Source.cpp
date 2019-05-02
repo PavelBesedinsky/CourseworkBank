@@ -3,16 +3,10 @@
 #include <cstdio>
 #include <time.h>
 #include "Bank.h"
+#include "QueryStruct.h"
 #include <iostream>
 // new dev branch
 
-struct Query
-{
-	int _qID;			// Вид запроса
-	int _qSum;			// Сумма запроса
-	int _qResult;		// Результат запроса
-	char _qText[20];	// Текст ответы
-};
 int main(int argc, char **argv)
 {
 	srand(time(NULL));
