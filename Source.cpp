@@ -2,9 +2,11 @@
 #include <iostream>
 #include <cstdio>
 #include <time.h>
+#include <Windows.h>
 #include "Bank.h"
 #include "QueryStruct.h"
 #include <iostream>
+#include "Source.h"
 // new dev branch
 
 int main(int argc, char **argv)
@@ -53,7 +55,7 @@ int main(int argc, char **argv)
 	const int sizeArr = 5;
 	MPI_Datatype queryType;
 	MPI_Datatype typeArr[sizeArr] = { MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_CHAR };
-	int bsizeArr[sizeArr] = { 1, 1, 1, 1, 64 };
+	int bsizeArr[sizeArr] = { 1, 1, 1, 1, 100 };
 	MPI_Aint dispArr[sizeArr];
 	SQuery  queryStruct;
 
@@ -128,35 +130,44 @@ int main(int argc, char **argv)
 	{
 		if (rank == 0)							// Процесс Сервер
 		{
-			int flag = 0;
-			MPI_Iprobe(MPI_ANY_SOURCE, msgtag, MPI_COMM_WORLD, &flag, &status);
-			// Есть ли сообщение?
-			if (flag)
+			int bankGoal = 0;
+			// Получить запрос от банка
+			MPI_Recv(&queryStruct, 1, queryType, MPI_ANY_SOURCE, msgtag, MPI_COMM_WORLD, &status);
+			if (queryStruct._qResult == -2)
 			{
-				int bankGoal = 0;
-				// Получить запрос от банка
-				MPI_Recv(&queryStruct, 1, queryType, MPI_ANY_SOURCE, msgtag, MPI_COMM_WORLD, &status);
-				// Запомнить номер банка, от которого пришел запрос
-				int source = status.MPI_SOURCE;
-				// Цикл по всем банкам
-				for (int i = 1; i < _bankN; i++)
+				_flag = false;
+				break;
+			}
+			FILE *f1;
+			fopen_s(&f1, "file0.txt", "a+");
+			fprintf_s(f1, "Получил запрос от %d\n", status.MPI_SOURCE);
+			fclose(f1);
+			// Запомнить номер банка, от которого пришел запрос
+			int source = status.MPI_SOURCE;
+			// Цикл по всем банкам
+			for (int i = 1; i < _bankN; i++)
+			{
+				// Если банк не из запроса
+				if (i != source)
 				{
-					// Если банк не из запроса
-					if (i != source)
+					// Отправить банку запрос
+					MPI_Send(&queryStruct, 1, queryType, i, msgtag, MPI_COMM_WORLD);
+					fopen_s(&f1, "file0.txt", "a+");
+					fprintf_s(f1, "Отправил запрос банку %d\n", i);
+					fclose(f1);
+					// Получить ответ от банка
+					MPI_Recv(&bankGoal, 1, MPI_INT, i, msgtag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+					fopen_s(&f1, "file0.txt", "a+");
+					fprintf_s(f1, "Банк сказал %d\n", bankGoal);
+					fclose(f1);
+					// Клиент из банка?
+					if (bankGoal)
 					{
-						// Отправить банку запрос
-						MPI_Send(&queryStruct, 1, queryType, i, msgtag, MPI_COMM_WORLD);
-						// Получить ответ от банка
-						MPI_Recv(&bankGoal, 1, MPI_INT, i, msgtag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-						// Клиент из банка?
-						if (bankGoal)
-						{
-							// Получить отбработанный запрос от банка
-							MPI_Recv(&queryStruct, 1, queryType, MPI_ANY_SOURCE, msgtag, MPI_COMM_WORLD, &status);
-							// Отправить обработанный запрос банку source
-							MPI_Send(&queryStruct, 1, queryType, source, msgtag, MPI_COMM_WORLD);
-							break;
-						}	
+						// Получить отбработанный запрос от банка
+						MPI_Recv(&queryStruct, 1, queryType, MPI_ANY_SOURCE, msgtag, MPI_COMM_WORLD, &status);
+						// Отправить обработанный запрос банку source
+						MPI_Send(&queryStruct, 1, queryType, source, msgtag, MPI_COMM_WORLD);
+						break;
 					}
 				}
 			}
@@ -164,9 +175,25 @@ int main(int argc, char **argv)
 
 		if (rank >= _rankB && rank < _rankT) // Процесс Банк
 		{
+			FILE *f2;
+			char str[256];
+			sprintf(str, "file %d.txt", rank);
+			/*fopen_s(&f2, str, "a+");
+			fprintf_s(f2, "count %d\n", count);
+			fclose(f2);*/
+		
 			// Получить запрос от ANY_SOURCE
 			MPI_Recv(&queryStruct, 1, queryType, MPI_ANY_SOURCE, msgtag, MPI_COMM_WORLD, &status);
-			
+			fopen_s(&f2, str, "a+");
+			fprintf_s(f2, "count %d queryStruct._qResult = %d\n", count, queryStruct._qResult);
+			fclose(f2);
+			if (queryStruct._qResult == -2)
+			{
+				
+				MPI_Send(&queryStruct, 1, queryType, 0, msgtag, MPI_COMM_WORLD);
+				_flag = false;
+				break;
+			}
 			int source = status.MPI_SOURCE;
 
 			// Запрос от сервера?
@@ -180,6 +207,8 @@ int main(int argc, char **argv)
 				}
 				else // Если клиента в базе данных есть
 				{
+					//printf("You have mistaken with a terminal!\n");
+					//sprintf(queryStruct._qText, "Account[%d] I'm have mistaken with a terminal!", queryStruct._qClientID);
 					// Отправить необработанный запрос на сервер
 					MPI_Send(&queryStruct, 1, queryType, 0, msgtag, MPI_COMM_WORLD);
 					// Получить обработанный запрос от сервера
@@ -188,7 +217,7 @@ int main(int argc, char **argv)
 				// Отправить ответ терминалу
 				MPI_Send(&queryStruct, 1, queryType, source, msgtag, MPI_COMM_WORLD);
 			}
-			else if(source == 0)// Если запрос отправлен от сервера
+			else if (source == 0)// Если запрос отправлен от сервера
 			{
 				// Клиент из банка?
 				if (bank->IsCustomer(queryStruct._qClientID)) // Если клиент в базе данных есть
@@ -230,13 +259,56 @@ int main(int argc, char **argv)
 			}
 			if (rank == 3)
 			{
-				_MyID = 2001;
-				_MyQuery = 3;
+				_MyID = 1001;
+				_MySum = 0;
+				if (count == 0)
+				{	
+					_MyID = 1000;
+					_MyQuery = 3;
+				}
+				if (count == 1)
+				{
+					_MyQuery = 1;
+					_MySum = 1000;
+				}
+				if (count == 2)
+					_MyQuery = 3;
+				if (count == 3)
+				{
+					_MyQuery = 2;
+					_MySum = 5000;
+				}
+				if (count == 4)
+					_MyQuery = 3;
 			}
 			if(rank == 4)
 			{
-				_MyID = 1002;
-				_MyQuery = 3;
+				_MyID = 2000;
+				if (count == 0)
+				{
+					_MyID = 1000;
+					_MyQuery = 3;
+				}
+				if (count == 1)
+				{
+					_MyID = 2000;
+					_MyQuery = 3;
+				}
+				if (count == 2)
+				{
+					_MyID = 2001;
+					_MyQuery = 3;
+				}
+				if (count == 3)
+				{
+					_MyID = 2002;
+					_MyQuery = 3;
+				}
+				if (count == 4)
+				{
+					_MyID = 2002;
+					_MyQuery = 3;
+				}
 			}
 			// Запросы:
 			// 1 - Положить деньги
@@ -259,13 +331,27 @@ int main(int argc, char **argv)
 
 			// Печать результатов
 			printf("Terminal(%d) %s\n", rank, queryStruct._qText);
+			
+			count++;
+			if (count > 4 && rank >= _rankT)
+			{
+				queryStruct._qResult = -2;
+				MPI_Send(&queryStruct, 1, queryType, _myBank, msgtag, MPI_COMM_WORLD);
+				_flag == false;
+				break;
+			}
 		}
-		count++;
-		if (count > 1)
-			_flag = false;
-		if (_flag == false)
-			break;
+		
+		/*if (_flag == false)
+			break;*/
 	} // Конец while
+
+	FILE *f3;
+	char str[256];
+	sprintf(str, "exit %d.txt", rank);
+	fopen_s(&f3, str, "a+");
+	fprintf_s(f3, "Вышел %d\n", rank);
+	fclose(f3);
 
 	if (rank == 0) // процесс сервер
 	{
