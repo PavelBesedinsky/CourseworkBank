@@ -16,7 +16,6 @@ public:
 	int getCustomerN();
 	int getTerminal();
 	bool IsCustomer(int customerID);
-	int Query(int request, int customerID, int value);
 	SQuery Query(SQuery query);
 private:
 	int _bankID; // Номер банка

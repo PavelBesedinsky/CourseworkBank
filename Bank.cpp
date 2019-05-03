@@ -52,26 +52,6 @@ bool Bank::IsCustomer(int customerID)
 	return false;
 }
 
-int Bank::Query(int request, int customerID, int value)
-{
-	int answer;
-	switch (request)
-	{
-	case 1: // положить деньги на счет		
-		customerAccounts[FindCustomer(customerID)].Sum(value);		// Увеличивает значение суммы владельца счета на value
-		answer = customerAccounts[FindCustomer(customerID)].Sum();	// Возвращает текущую сумму на счете пользователя
-		Print(request);
-		break;
-	case 2: // снять деньги с счета
-		Print(request);
-		break;
-	case 3: // посмотреть баланск;
-		Print(request);
-		break;
-	}
-	return answer;
-}
-
 SQuery Bank::Query(SQuery query)
 {
 	SQuery answer;
@@ -83,7 +63,7 @@ SQuery Bank::Query(SQuery query)
 			
 			answer._qResult = 1;
 			answer._qSum = customerAccounts[FindCustomer(query._qClientID)].Sum();
-			sprintf(query._qText, "Account got money in value = %d", query._qSum);
+			sprintf(answer._qText, "Account[%d] got money in value = %d", query._qClientID, query._qSum);
 			Print(query._qRequest);
 			break;
 		}
@@ -92,12 +72,12 @@ SQuery Bank::Query(SQuery query)
 			int requestSum = -query._qSum;
 			if (query._qSum > customerAccounts[FindCustomer(query._qClientID)].Sum())
 			{
-				sprintf(answer._qText, "Account haven't enough money in value = %d", query._qSum);
+				sprintf(answer._qText, "Account[%d] haven't enough money in value = %d", query._qClientID, query._qSum);
 				answer._qResult = 1;
 			}
 			else
 			{
-				sprintf(answer._qText, "Take your money in value = %d", query._qSum);
+				sprintf(answer._qText, "Account[%d] take your money in value = %d", query._qClientID, query._qSum);
 				answer._qResult = 1;
 				customerAccounts[FindCustomer(query._qClientID)].Sum(requestSum);
 			}
@@ -106,7 +86,7 @@ SQuery Bank::Query(SQuery query)
 		}
 		case 3: // check the balance of the account
 		{
-			sprintf(answer._qText, "Your balance is %d", customerAccounts[FindCustomer(query._qClientID)].Sum());
+			sprintf(answer._qText, "Account[%d] your balance is %d", query._qClientID, customerAccounts[FindCustomer(query._qClientID)].Sum());
 			answer._qResult = 1;
 			Print(query._qRequest);
 			break;
