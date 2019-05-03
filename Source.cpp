@@ -116,18 +116,19 @@ int main(int argc, char **argv)
 
 	if (rank >= _rankB && rank < _rankT)		// Процесс Банк
 	{
-
+		printf("Bank(%d) connection success!\n", rank);
 		_myTerminal = rank + _bankN;			// Определение номера терминала, с которым работает банк
 		bank = new Bank(3, rank, _myTerminal);
 	}
-
+	MPI_Barrier(MPI_COMM_WORLD);
 	if (rank >= _rankT)							// Процесс Терминал
 	{
+		printf("Terminal(%d) connection success!\n", rank);
 		_myBank = rank - _bankN;				// Определение номера банка, с которым работает терминал
 	}
-
+	MPI_Barrier(MPI_COMM_WORLD);
 	int count = 0;
-	_flag = false;
+	_flag = true;
 	while (_flag)
 	{
 		if (rank == 0)							// Процесс Сервер
@@ -190,19 +191,29 @@ int main(int argc, char **argv)
 			int _MyID = 0;				// ID клиента
 			int _MyQuery = rand()%3;	// Создание запроса
 			int _MySum = 0;				// Сумма запроса
+			sprintf(queryStruct._qText, "empty0");
 			if(_MyQuery != 2)			// Если запрос на баланс
 			{
 				int _MySum = rand()%1000 + 50;	// Сумма запроса
 				float fl = rand()%2;
 			}
-			printf("Terminal(%d)\n", rank);
+			if (rank == 3)
+			{
+				_MyID = 2001;
+				_MyQuery = 3;
+			}
+			if(rank == 4)
+			{
+				_MyID = 2002;
+				_MyQuery = 3;
+			}
 			// Запросы:
-			// 0 - Положить деньги
-			// 1 - Снять деньги
-			// 2 - Посмотреть баланс
+			// 1 - Положить деньги
+			// 2 - Снять деньги
+			// 3 - Посмотреть баланс
 			// Ответы:
-			// 3 - Запрос выполнен
-			// 4 - Запрос не выполненфы
+			// 4 - Запрос выполнен
+			// 5 - Запрос не выполненфы
 			
 			queryStruct._qClientID = _MyID;
 			queryStruct._qRequest = _MyQuery;
@@ -216,14 +227,13 @@ int main(int argc, char **argv)
 			MPI_Recv(&queryStruct, 1, queryType, _myBank, msgtag, MPI_COMM_WORLD, &status);
 
 			// Печать результатов
-			printf("%s\n", queryStruct._qText);
+			printf("Terminal(%d) %s\n", rank, queryStruct._qText);
 		}
 		count++;
 		if (count > 1)
 			_flag = false;
 		if (_flag == false)
 			break;
-		MPI_Barrier(MPI_COMM_WORLD);
 	} // Конец while
 
 	if (rank == 0) // процесс сервер
