@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 	
 	int msgtag = 35;
 	int msgtag1 = 351;
-	
+
 	int _bankN;			// количество банков
 	int _terminalN;		// количество терминалов
 	int _rankB;			// номер процесса, с которого начинаются банки
@@ -50,8 +50,6 @@ int main(int argc, char **argv)
 
 	_rankB = 1;
 	_rankT = _rankB + _bankN;
-
-	//int query[3] = {0};		// Запрос: [Запрос][ID Клиента][Сумма]
 	
 	const int sizeArr = 5;
 	MPI_Datatype queryType;
@@ -76,21 +74,40 @@ int main(int argc, char **argv)
 	MPI_Type_struct(sizeArr, bsizeArr, dispArr, typeArr, &queryType);
 	MPI_Type_commit(&queryType);
 	
+
 	if (rank == 0)								// Процесс Сервер
 	{
-
+		FILE *finit;
+		char strinit[256];
+		sprintf(strinit, "%d server.txt", rank);
+		fopen_s(&finit, strinit, "w");
+		fclose(finit);
 	}
 
 	if (rank >= _rankB && rank < _rankT)		// Процесс Банк
 	{
-		printf("Bank(%d) connection success!\n", rank);
+		//
+		FILE *finit;
+		char strinit[256];
+		sprintf(strinit, "%d bank.txt", rank);
+		fopen_s(&finit, strinit, "w");
+		fclose(finit);
+		//
+
 		_myTerminal = rank + _bankN;			// Определение номера терминала, с которым работает банк
 		bank = new Bank(3, rank, _myTerminal);
 	}
-	MPI_Barrier(MPI_COMM_WORLD);
+
 	if (rank >= _rankT)							// Процесс Терминал
 	{
-		printf("Terminal(%d) connection success!\n", rank);
+		//
+		FILE *finit;
+		char strinit[256];
+		sprintf(strinit, "%d terminal.txt", rank);
+		fopen_s(&finit, strinit, "w");
+		fclose(finit);
+		//
+
 		_myBank = rank - _bankN;				// Определение номера банка, с которым работает терминал
 	}
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -113,6 +130,7 @@ int main(int argc, char **argv)
 			int bankGoal = 0;
 			// Получить запрос от банка
 			fopen_s(&f1, str, "a+");
+			fprintf_s(f1, "\n");
 			fprintf_s(f1, "Жду\n");
 			fclose(f1);
 
@@ -121,12 +139,22 @@ int main(int argc, char **argv)
 			
 			if (queryStruct._qResult == -2)
 			{
-				fopen_s(&f1, str, "a+");
-				fprintf_s(f1, "Принял выключение\n");
-				fclose(f1);
 				countExit++;
+
+				//
+				fopen_s(&f1, str, "a+");
+				fprintf_s(f1, "Принял %d из %d выключений\n", countExit, _bankN);
+				fclose(f1);
+				//
+			
 				if (countExit == _bankN)
 				{
+					//
+					fopen_s(&f1, str, "a+");
+					fprintf_s(f1, "Выход\n");
+					fclose(f1);
+					//
+
 					_flag = false; // Убрать флаг?
 					break;
 				}
@@ -135,7 +163,7 @@ int main(int argc, char **argv)
 			{
 				//
 				fopen_s(&f1, str, "a+");
-				fprintf_s(f1, "Получил запрос от %d\n", status.MPI_SOURCE);
+				fprintf_s(f1, "Получил запрос от банка(%d) клиент(%d)\n", status.MPI_SOURCE, queryStruct._qClientID);
 				fclose(f1);
 				//
 
@@ -161,11 +189,11 @@ int main(int argc, char **argv)
 					}
 				}
 				// Получить отбработанный запрос от банка
-				MPI_Recv(&queryStruct, 1, queryType, MPI_ANY_SOURCE, msgtag, MPI_COMM_WORLD, &status);
+				MPI_Recv(&queryStruct, 1, queryType, MPI_ANY_SOURCE, msgtag1, MPI_COMM_WORLD, &status);
 				
 				//
 				fopen_s(&f1, str, "a+");
-				fprintf_s(f1, "Получил обработанный запрос от %d\n", status.MPI_SOURCE);
+				fprintf_s(f1, "Получил обработанный запрос клиента(%d) от банка(%d) \n", queryStruct._qClientID, status.MPI_SOURCE);
 				fclose(f1);
 				//
 
@@ -174,7 +202,7 @@ int main(int argc, char **argv)
 				
 				//
 				fopen_s(&f1, str, "a+");
-				fprintf_s(f1, "Отправил обработанный запрос к %d\n", source);
+				fprintf_s(f1, "Отправил обработанный запрос клиента(%d) в банк(%d)\n", queryStruct._qClientID, source);
 				fclose(f1);
 				//
 			}
@@ -186,23 +214,33 @@ int main(int argc, char **argv)
 			char str[256];
 			sprintf(str, "%d bank.txt", rank);
 		
+
 			// Получить запрос от ANY_SOURCE
 			MPI_Recv(&queryStruct, 1, queryType, MPI_ANY_SOURCE, msgtag, MPI_COMM_WORLD, &status);
-			
-			//
-			fopen_s(&f2, str, "a+");
-			fprintf_s(f2, "Получил запрос от терминала(%d), клиент(%d)\n", _myTerminal, queryStruct._qClientID);
-			fclose(f2);
-			//
-			
+
+
 			if (queryStruct._qResult == -2)
 			{
+				countExit++;
+				//
 				fopen_s(&f2, str, "a+");
 				fprintf_s(f2, "Отправил 0 выключение\n");
 				fclose(f2);
-				MPI_Send(&queryStruct, 1, queryType, 0, msgtag, MPI_COMM_WORLD);
-				_flag = false;
-				break;
+				//
+				
+				if (countExit == _bankN)
+				{
+					MPI_Send(&queryStruct, 1, queryType, 0, msgtag, MPI_COMM_WORLD);
+
+					//
+					fopen_s(&f2, str, "a+");
+					fprintf_s(f2, "Выход\n");
+					fclose(f2);
+					//
+
+					_flag = false; // Убрать флаг?
+					break;
+				}
 			}
 			
 			// Запрос обработан?
@@ -210,10 +248,10 @@ int main(int argc, char **argv)
 			{
 				//
 				fopen_s(&f2, str, "a+");
-				fprintf_s(f2, "Запрос уже обработан. Отправляю ответ на терминал\n");
+				fprintf_s(f2, "Принят обработанный запрос. Отправляю ответ на терминал\n");
 				fclose(f2);
 				//
-				
+
 				// Отправить ответ на терминал
 				MPI_Send(&queryStruct, 1, queryType, _myTerminal, msgtag, MPI_COMM_WORLD);
 			}
@@ -224,48 +262,74 @@ int main(int argc, char **argv)
 				// Запрос от сервера?
 				if (source == bank->getTerminal()) // Если запрос отправлен с терминала
 				{
+					//
+					fopen_s(&f2, str, "a+");
+					fprintf_s(f2, "Принят запрос от клиента(%d) с терминала(%d)\n", queryStruct._qClientID, _myTerminal);
+					fclose(f2);
+					//	
+
 					// Клиент из банка?
 					if (bank->IsCustomer(queryStruct._qClientID)) // Если клиент в базе данных банка есть
 					{
-						// Обработать запрос
-						queryStruct = bank->Query(queryStruct);
 						
+						// Обработать запрос
+						queryStruct = bank->Query(queryStruct);	
+
 						//
 						fopen_s(&f2, str, "a+");
-						fprintf_s(f2, "Обрабатываю запрос от терминала(%d), клиент(%d)\n", _myTerminal, queryStruct._qClientID);
+						fprintf_s(f2, "Клиент(%d) (%d) в базе данных есть, обрабатываю запрос от терминала(%d)\n", queryStruct._qClientID, queryStruct._qResult, _myTerminal);
 						fclose(f2);
 						//
 						
+						//
+						fopen_s(&f2, str, "a+");
+						fprintf_s(f2, "Запрос клиента(%d) отправляется на терминал(%d) \n", queryStruct._qClientID, _myTerminal);
+						fclose(f2);
+						//
 						// Отправить ответ терминалу
-						MPI_Send(&queryStruct, 1, queryType, source, msgtag, MPI_COMM_WORLD);
+						MPI_Send(&queryStruct, 1, queryType, _myTerminal, msgtag, MPI_COMM_WORLD);
 					}
 					else // Если клиента в базе данных есть
 					{
 						//
 						fopen_s(&f2, str, "a+");
-						fprintf_s(f2, "Отправляю необработанный запрос от терминала(%d), клиент(%d) на сервер\n", _myTerminal, queryStruct._qClientID);
+						fprintf_s(f2, "Клиент(%d) в базе данных не найден, запрос от терминала(%d) отправляется на сервер\n", queryStruct._qClientID, _myTerminal);
 						fclose(f2);
 						//
 
 						// Отправить необработанный запрос на сервер
-						MPI_Send(&queryStruct, 1, queryType, 0, msgtag, MPI_COMM_WORLD);
-						
-						//
-						fopen_s(&f2, str, "a+");
-						fprintf_s(f2, "Получил обработанный запрос от сервера, клиент(%d)\n", queryStruct._qClientID);
-						fclose(f2);
-						//
+						MPI_Send(&queryStruct, 1, queryType, 0, msgtag, MPI_COMM_WORLD);		
 					}	
 				}
 				else if (source == 0)// Если запрос отправлен от сервера
 				{
+
+					//
+					fopen_s(&f2, str, "a+");
+					fprintf_s(f2, "Получен запрос с сервера от клиента(%d)\n", queryStruct._qClientID);
+					fclose(f2);
+					//
+
 					// Клиент из банка?
 					if (bank->IsCustomer(queryStruct._qClientID)) // Если клиент в базе данных есть
 					{
+						//
+						fopen_s(&f2, str, "a+");
+						fprintf_s(f2, "Клиент(%d) в базе данных есть, обрабатываю запрос с сервера\n", queryStruct._qClientID);
+						fclose(f2);
+						//
+
 						// Обработать запрос
 						queryStruct = bank->Query(queryStruct);
+
+						//
+						fopen_s(&f2, str, "a+");
+						fprintf_s(f2, "Запрос клиента(%d) обработан и отправляется на сервер\n", queryStruct._qClientID);
+						fclose(f2);
+						//
+
 						// Отправить обработанный запрос на сервер
-						MPI_Send(&queryStruct, 1, queryType, 0, msgtag, MPI_COMM_WORLD);
+						MPI_Send(&queryStruct, 1, queryType, 0, msgtag1, MPI_COMM_WORLD);
 					}
 				}
 			}
@@ -285,65 +349,114 @@ int main(int argc, char **argv)
 				int _MySum = rand()%1000 + 50;	// Сумма запроса
 				float fl = rand()%2;
 			}
-			if (rank == 3)
+			queryStruct._qClientID = _MyID;
+			queryStruct._qRequest = _MyQuery;
+			queryStruct._qSum = _MySum;
+			queryStruct._qResult = -1; // Запрос не существует
+
+			if (rank == _rankT)
 			{
 				_MyID = 1000;
 				_MySum = 0;
 				if (count == 0)
 				{	
-					_MyID = 2000;
+					_MyID = 1000;
 					_MyQuery = 3;
+					queryStruct._qResult = 0;
 				}
 				if (count == 1)
 				{
-					_MyID = 1000;
+					_MyID = 2001;
 					_MyQuery = 1;
 					_MySum = 1000;
+					queryStruct._qResult = 0;
 				}
 				if (count == 2)
 				{
-					_MyID = 1000;
+					_MyID = 2001;
 					_MyQuery = 3;
+					queryStruct._qResult = 0;
 				}
 				if (count == 3)
 				{
 					_MyID = 1000;
 					_MyQuery = 2;
 					_MySum = 5000;
+					queryStruct._qResult = 0;
 				}
 				if (count == 4)
 				{
 					_MyID = 1000;
 					_MyQuery = 3;
+					queryStruct._qResult = 0;
 				}
 			}
-			if(rank == 4)
+			if(rank == _rankT + 1)
 			{
 				_MyID = 2000;
 				if (count == 0)
 				{
-					_MyID = 1002;
+					_MyID = 1000;
 					_MyQuery = 3;
+					queryStruct._qResult = 0;
 				}
 				if (count == 1)
 				{
 					_MyID = 2000;
 					_MyQuery = 3;
+					queryStruct._qResult = 0;
 				}
 				if (count == 2)
 				{
-					_MyID = 2001;
+					_MyID = 2000;
 					_MyQuery = 3;
+					queryStruct._qResult = 0;
 				}
 				if (count == 3)
 				{
-					_MyID = 2002;
+					_MyID = 2000;
 					_MyQuery = 3;
+					queryStruct._qResult = 0;
 				}
 				if (count == 4)
 				{
-					_MyID = 2002;
+					_MyID = 2000;
 					_MyQuery = 3;
+					queryStruct._qResult = 0;
+				}
+			}
+			if (rank == _rankT + 2)
+			{
+				_MyID = 1001;
+				if (count == 0)
+				{
+					_MyID = 1002;
+					_MyQuery = 3;
+					queryStruct._qResult = 0;
+				}
+				if (count == 1)
+				{
+					_MyID = 1002;
+					_MyQuery = 3;
+					queryStruct._qResult = 0;
+				}
+				if (count == 2)
+				{
+					_MyID = 1002;
+					_MyQuery = 3;
+					queryStruct._qResult = 0;
+				}
+				if (count == 3)
+				{
+					_MyID = 1002;
+					_MyQuery = 3;
+					queryStruct._qResult = 0;
+				}
+				if (count == 4)
+				{
+					_MyID = 1002;
+					_MyQuery = 3;
+					queryStruct._qResult = 0;
 				}
 			}
 			// Запросы:
@@ -353,26 +466,66 @@ int main(int argc, char **argv)
 			// Ответы:
 			// 4 - Запрос выполнен
 			// 5 - Запрос не выполненфы
-			
+
 			queryStruct._qClientID = _MyID;
 			queryStruct._qRequest = _MyQuery;
 			queryStruct._qSum = _MySum;
-			queryStruct._qResult = 0;
-
-			// Отправить запрос банку
-			MPI_Send(&queryStruct, 1, queryType, _myBank, msgtag, MPI_COMM_WORLD);
-			
-			// Получить ответ за запрос
-			MPI_Recv(&queryStruct, 1, queryType, _myBank, msgtag, MPI_COMM_WORLD, &status);
 
 			// Печать результатов
-			printf("Terminal(%d) %s\n", rank, queryStruct._qText);
-			
+			if (queryStruct._qResult == 0)
+			{
+				//
+				FILE *f3;
+				char str[256];
+				sprintf(str, "%d terminal.txt", rank);
+				fopen_s(&f3, str, "a+");
+				//
+
+				if(_MyQuery == 1)
+					fprintf_s(f3, "Терминал(%d) отправляет в банк(%d) запрос от клиента(%d): пополнить счёт\n", rank, _myBank, queryStruct._qClientID);
+				if (_MyQuery == 2)
+					fprintf_s(f3, "Терминал(%d) отправляет в банк(%d) запрос от клиента(%d): обналичивание счёта\n", rank, _myBank, queryStruct._qClientID);
+				if (_MyQuery == 3)
+					fprintf_s(f3, "Терминал(%d) отправляет в банк(%d) запрос от клиента(%d): запрос баланса\n", rank, _myBank, queryStruct._qClientID);
+				fprintf_s(f3, "\n");
+				fclose(f3);
+				//
+
+				// Отправить запрос банку
+				MPI_Send(&queryStruct, 1, queryType, _myBank, msgtag, MPI_COMM_WORLD);
+
+				// Получить ответ за запрос
+				MPI_Recv(&queryStruct, 1, queryType, _myBank, msgtag, MPI_COMM_WORLD, &status);
+					
+				//
+				fopen_s(&f3, str, "a+");
+				if (_MyQuery == 1)
+				{
+					fprintf_s(f3, "Терминал(%d) получает ответ от банка(%d) на запрос от клиента(%d): пополнить счёт\n", rank, _myBank, queryStruct._qClientID);
+				}
+				if (_MyQuery == 2)
+				{
+					fprintf_s(f3, "Терминал(%d) получает ответ от банка(%d) на запрос от клиента(%d): обналичивание счёта\n", rank, _myBank, queryStruct._qClientID);
+				}
+				if (_MyQuery == 3)
+				{
+					fprintf_s(f3, "Терминал(%d) получает ответ от банка(%d) на запрос от клиента(%d): запрос баланса\n", rank, _myBank, queryStruct._qClientID);
+				}
+				fprintf_s(f3, "Терминал(%d): %s\n", rank, queryStruct._qText);
+				fprintf_s(f3, "\n");
+				fclose(f3);
+				//
+
+				
+				//printf("Terminal(%d) %s\n", rank, queryStruct._qText);
+			}
 			count++;
 			if (count > 4 && rank >= _rankT)
 			{
+				// проблема
 				queryStruct._qResult = -2;
-				MPI_Send(&queryStruct, 1, queryType, _myBank, msgtag, MPI_COMM_WORLD);
+				for(int i = 1; i <= _bankN; i++)
+					MPI_Send(&queryStruct, 1, queryType, i, msgtag, MPI_COMM_WORLD);
 				_flag == false;
 				break;
 			}
