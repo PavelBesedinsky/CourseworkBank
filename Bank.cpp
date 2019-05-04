@@ -26,6 +26,7 @@ void Bank::CreateCustomerAccounts()
 		customerAccounts[i].Sum(rand() % (_bankID + 100));
 		printf("I'm client %d from bank = %d; my id = %d; my sum = %d\n", i, _bankID, customerAccounts[i].ID(), customerAccounts[i].Sum());
 	}
+	printf("\n");
 }
 
 
@@ -54,7 +55,7 @@ bool Bank::IsCustomer(int customerID)
 
 SQuery Bank::Query(SQuery query)
 {
-	SQuery answer;
+	SQuery answer = query;
 	switch (query._qRequest)
 	{
 		case 1: // put money in the account	
@@ -63,7 +64,7 @@ SQuery Bank::Query(SQuery query)
 			
 			answer._qResult = 1;
 			answer._qSum = customerAccounts[FindCustomer(query._qClientID)].Sum();
-			sprintf(answer._qText, "Account[%d] got money in value = %d", query._qClientID, query._qSum);
+			sprintf(answer._qText, "Account[%d] deposit in value = %d", query._qClientID, query._qSum);
 			Print(query._qRequest);
 			break;
 		}
@@ -72,12 +73,12 @@ SQuery Bank::Query(SQuery query)
 			int requestSum = -query._qSum;
 			if (query._qSum > customerAccounts[FindCustomer(query._qClientID)].Sum())
 			{
-				sprintf(answer._qText, "Account[%d] haven't enough money in value = %d", query._qClientID, query._qSum);
+				sprintf(answer._qText, "Account[%d] haven't enough money in value = %d to cash", query._qClientID, query._qSum);
 				answer._qResult = 1;
 			}
 			else
 			{
-				sprintf(answer._qText, "Account[%d] take your money in value = %d", query._qClientID, query._qSum);
+				sprintf(answer._qText, "Account[%d] cashing in value = %d", query._qClientID, query._qSum);
 				answer._qResult = 1;
 				customerAccounts[FindCustomer(query._qClientID)].Sum(requestSum);
 			}
@@ -110,5 +111,5 @@ int Bank::FindCustomer(int customerID)
 
 void Bank::Print(int request)
 {
-	printf("\nRequest %d has been executed\n", request);
+	//printf("\nRequest %d has been executed\n", request);
 }
