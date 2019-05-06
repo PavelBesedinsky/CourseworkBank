@@ -1,17 +1,32 @@
-﻿  Account.cpp
-  Bank.cpp
-  Query.cpp
-  Source.cpp
-i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(12): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
-i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(77): warning C4477: "printf": в строке форматирования "%d" требуется аргумент типа "int", но вариативный аргумент "1" имеет тип "const _Elem *"
-          with
-          [
-              _Elem=char
-          ]
-i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(77): warning C4473: "printf": передано недостаточно аргументов для строки формата
-  i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(77): note: заполнители и их параметры ожидают переменное число аргументов в количестве 2, но было предоставлено 1
-  i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(77): note: отсутствующий вариативный аргумент "2" требуется для строки форматирования "%s"
-i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(138): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
-i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(147): warning C4244: инициализация: преобразование "int" в "float", возможна потеря данных
-  Создание кода...
+﻿  Source.cpp
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(14): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(363): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(375): warning C4244: инициализация: преобразование "int" в "float", возможна потеря данных
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(554): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(72): warning C4996: 'MPI_Address': Deprecated in MPI 2.0, use 'MPI_Get_address'.  To disable deprecation, define MSMPI_NO_DEPRECATE_20.
+  c:\program files (x86)\microsoft sdks\mpi\include\mpi.h(6544): note:  см. объявление "MPI_Address"
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(73): warning C4996: 'MPI_Address': Deprecated in MPI 2.0, use 'MPI_Get_address'.  To disable deprecation, define MSMPI_NO_DEPRECATE_20.
+  c:\program files (x86)\microsoft sdks\mpi\include\mpi.h(6544): note:  см. объявление "MPI_Address"
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(74): warning C4996: 'MPI_Address': Deprecated in MPI 2.0, use 'MPI_Get_address'.  To disable deprecation, define MSMPI_NO_DEPRECATE_20.
+  c:\program files (x86)\microsoft sdks\mpi\include\mpi.h(6544): note:  см. объявление "MPI_Address"
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(75): warning C4996: 'MPI_Address': Deprecated in MPI 2.0, use 'MPI_Get_address'.  To disable deprecation, define MSMPI_NO_DEPRECATE_20.
+  c:\program files (x86)\microsoft sdks\mpi\include\mpi.h(6544): note:  см. объявление "MPI_Address"
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(76): warning C4996: 'MPI_Address': Deprecated in MPI 2.0, use 'MPI_Get_address'.  To disable deprecation, define MSMPI_NO_DEPRECATE_20.
+  c:\program files (x86)\microsoft sdks\mpi\include\mpi.h(6544): note:  см. объявление "MPI_Address"
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(80): warning C4996: 'MPI_Type_struct': Deprecated in MPI 2.0, use 'MPI_Type_create_struct'.  To disable deprecation, define MSMPI_NO_DEPRECATE_20.
+  c:\program files (x86)\microsoft sdks\mpi\include\mpi.h(6524): note:  см. объявление "MPI_Type_struct"
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(88): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdio.h(1774): note:  см. объявление "sprintf"
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(98): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdio.h(1774): note:  см. объявление "sprintf"
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(113): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdio.h(1774): note:  см. объявление "sprintf"
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(228): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdio.h(1774): note:  см. объявление "sprintf"
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(371): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdio.h(1774): note:  см. объявление "sprintf"
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(506): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdio.h(1774): note:  см. объявление "sprintf"
+i:\programming\projects\mpi\mpi_bank\mpi_bank\source.cpp(563): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdio.h(1774): note:  см. объявление "sprintf"
   MPI_BANK.vcxproj -> I:\Programming\Projects\MPI\MPI_BANK\Debug\MPI_BANK.exe

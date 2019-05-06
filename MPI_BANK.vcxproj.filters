@@ -24,9 +24,6 @@
     <ClCompile Include="Account.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="Query.cpp">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bank.h">
@@ -35,7 +32,10 @@
     <ClInclude Include="Account.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Query.h">
+    <ClInclude Include="QueryStruct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
