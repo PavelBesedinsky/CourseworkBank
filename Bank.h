@@ -18,10 +18,11 @@ public:
 	bool IsCustomer(int customerID);
 	SQuery Query(SQuery query);
 private:
-	int _bankID; // Номер банка
+	int _bankID;	// Номер банка
+					// A number of the bank
 	int _customerN; // Общее число клиентов
+					// Amount of clients
 	int _terminal;
-	//double** _customerAccount; // Массив с счетами клиентов (ID клиента; Сумма)
 	Account* customerAccounts;
 	void CreateCustomerAccounts();
 	int FindCustomer(int customerID);

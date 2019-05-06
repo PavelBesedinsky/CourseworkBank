@@ -40,11 +40,17 @@ int main(int argc, char **argv)
 	int msgtag1 = 351;
 
 	int _bankN;			// количество банков
+						// count of banks
 	int _terminalN;		// количество терминалов
+						// count of terminals
 	int _rankB;			// номер процесса, с которого начинаются банки
+						// number of first bank
 	int _rankT;			// номер процесса, с которого начинаются терминалы
+						// number of first terminal
 	int _myTerminal;	// номер терминала у банка
+						// personal terminal number of a bank
 	int _myBank;		// номер банка у терминала
+						// personal bank number of a terminal
 	_bankN = (size - 1) / 2;
 	_terminalN = (size - 1) / 2;
 
@@ -75,7 +81,7 @@ int main(int argc, char **argv)
 	MPI_Type_commit(&queryType);
 	
 
-	if (rank == 0)								// Процесс Сервер
+	if (rank == 0)								// Процесс Сервер // Process Server
 	{
 		FILE *finit;
 		char strinit[256];
@@ -84,7 +90,7 @@ int main(int argc, char **argv)
 		fclose(finit);
 	}
 
-	if (rank >= _rankB && rank < _rankT)		// Процесс Банк
+	if (rank >= _rankB && rank < _rankT)		// Процесс Банк	// Process Bank
 	{
 		//
 		FILE *finit;
@@ -95,10 +101,11 @@ int main(int argc, char **argv)
 		//
 
 		_myTerminal = rank + _bankN;			// Определение номера терминала, с которым работает банк
+												// Defining of terminal number with which bank works
 		bank = new Bank(3, rank, _myTerminal);
 	}
 
-	if (rank >= _rankT)							// Процесс Терминал
+	if (rank >= _rankT)							// Процесс Терминал // Process Terminal
 	{
 		//
 		FILE *finit;
@@ -109,6 +116,7 @@ int main(int argc, char **argv)
 		//
 
 		_myBank = rank - _bankN;				// Определение номера банка, с которым работает терминал
+												// Defining of bank number with which terminal works
 	}
 	MPI_Barrier(MPI_COMM_WORLD);
 	
@@ -118,7 +126,7 @@ int main(int argc, char **argv)
 	int countExit = 0;
 	while (_flag)
 	{
-		if (rank == 0)							// Процесс Сервер
+		if (rank == 0)							// Процесс Сервер	// Process Server
 		{
 			FILE *f1;
 			char str[256];
@@ -155,7 +163,6 @@ int main(int argc, char **argv)
 					fclose(f1);
 					//
 
-					_flag = false; // Убрать флаг?
 					break;
 				}
 			}
@@ -168,17 +175,21 @@ int main(int argc, char **argv)
 				//
 
 				// Запомнить номер банка, от которого пришел запрос
+				// Remeber source of query
 				int source = status.MPI_SOURCE;
 				// Цикл по всем банкам
+				// Loop over all banks
 				for (int i = 1; i <= _bankN; i++)
 				{
 					fopen_s(&f1, str, "a+");
 					fprintf_s(f1, "i = %d && source = %d bank = %d\n", i, source, _bankN);
 					fclose(f1);
 					// Если банк не из запроса
+					// If bank isn't from query
 					if (i != source)
 					{
 						// Отправить банку запрос
+						// Send query to bank
 						MPI_Send(&queryStruct, 1, queryType, i, msgtag, MPI_COMM_WORLD);
 						
 						//
@@ -189,6 +200,7 @@ int main(int argc, char **argv)
 					}
 				}
 				// Получить отбработанный запрос от банка
+				// Get processed query from a bank
 				MPI_Recv(&queryStruct, 1, queryType, MPI_ANY_SOURCE, msgtag1, MPI_COMM_WORLD, &status);
 				
 				//
@@ -198,6 +210,7 @@ int main(int argc, char **argv)
 				//
 
 				// Отправить обработанный запрос банку source
+				// Send processed query to source
 				MPI_Send(&queryStruct, 1, queryType, source, msgtag, MPI_COMM_WORLD);
 				
 				//
@@ -208,7 +221,7 @@ int main(int argc, char **argv)
 			}
 		}
 
-		if (rank >= _rankB && rank < _rankT) // Процесс Банк
+		if (rank >= _rankB && rank < _rankT) // Процесс Банк // Process Bank
 		{
 			FILE *f2;
 			char str[256];
@@ -216,6 +229,7 @@ int main(int argc, char **argv)
 		
 
 			// Получить запрос от ANY_SOURCE
+			// Get query from ANY_SOURCE
 			MPI_Recv(&queryStruct, 1, queryType, MPI_ANY_SOURCE, msgtag, MPI_COMM_WORLD, &status);
 
 
@@ -238,12 +252,12 @@ int main(int argc, char **argv)
 					fclose(f2);
 					//
 
-					_flag = false; // Убрать флаг?
 					break;
 				}
 			}
 			
 			// Запрос обработан?
+			// Was query processed?
 			if (queryStruct._qResult == 1)
 			{
 				//
@@ -253,6 +267,7 @@ int main(int argc, char **argv)
 				//
 
 				// Отправить ответ на терминал
+				// Send answer to terminal
 				MPI_Send(&queryStruct, 1, queryType, _myTerminal, msgtag, MPI_COMM_WORLD);
 			}
 			else
@@ -260,7 +275,8 @@ int main(int argc, char **argv)
 				int source = status.MPI_SOURCE;
 
 				// Запрос от сервера?
-				if (source == bank->getTerminal()) // Если запрос отправлен с терминала
+				// Is query from server?
+				if (source == bank->getTerminal()) // Если запрос отправлен с терминала // If query was sent from terminal
 				{
 					//
 					fopen_s(&f2, str, "a+");
@@ -269,10 +285,12 @@ int main(int argc, char **argv)
 					//	
 
 					// Клиент из банка?
-					if (bank->IsCustomer(queryStruct._qClientID)) // Если клиент в базе данных банка есть
+					// Is client from bank?
+					if (bank->IsCustomer(queryStruct._qClientID)) // Если клиент в базе данных банка есть // If client exists in data base of the bank
 					{
 						
 						// Обработать запрос
+						// Process a query
 						queryStruct = bank->Query(queryStruct);	
 
 						//
@@ -287,6 +305,7 @@ int main(int argc, char **argv)
 						fclose(f2);
 						//
 						// Отправить ответ терминалу
+						// Send processed request to terminal
 						MPI_Send(&queryStruct, 1, queryType, _myTerminal, msgtag, MPI_COMM_WORLD);
 					}
 					else // Если клиента в базе данных есть
@@ -298,10 +317,11 @@ int main(int argc, char **argv)
 						//
 
 						// Отправить необработанный запрос на сервер
+						// Send unprocessed request to server
 						MPI_Send(&queryStruct, 1, queryType, 0, msgtag, MPI_COMM_WORLD);		
 					}	
 				}
-				else if (source == 0)// Если запрос отправлен от сервера
+				else if (source == 0)// Если запрос отправлен от сервера // If request was sent from server
 				{
 
 					//
@@ -311,7 +331,8 @@ int main(int argc, char **argv)
 					//
 
 					// Клиент из банка?
-					if (bank->IsCustomer(queryStruct._qClientID)) // Если клиент в базе данных есть
+					// Is client from bank?
+					if (bank->IsCustomer(queryStruct._qClientID)) // Если клиент в базе данных есть // If client doesn't exist in data base of the bank
 					{
 						//
 						fopen_s(&f2, str, "a+");
@@ -320,6 +341,7 @@ int main(int argc, char **argv)
 						//
 
 						// Обработать запрос
+						// Process a query
 						queryStruct = bank->Query(queryStruct);
 
 						//
@@ -330,18 +352,21 @@ int main(int argc, char **argv)
 
 						// Отправить обработанный запрос на сервер
 						MPI_Send(&queryStruct, 1, queryType, 0, msgtag1, MPI_COMM_WORLD);
+						// Send processed request to server
 					}
 				}
 			}
 		}
 
-		if (rank >= _rankT) // процессы терминалы
+		if (rank >= _rankT) // процессы терминалы // Process terminal
 		{
 			srand(time(NULL));
 			
 			// Создание запроса
 			int _MyID = 0;				// ID клиента
+										// Client's ID
 			int _MyQuery = rand()%3;	// Создание запроса
+										
 			int _MySum = 0;				// Сумма запроса
 			sprintf(queryStruct._qText, "empty0");
 			if(_MyQuery != 2)			// Если запрос на баланс
@@ -366,14 +391,14 @@ int main(int argc, char **argv)
 				}
 				if (count == 1)
 				{
-					_MyID = 2001;
+					_MyID = 2000;
 					_MyQuery = 1;
 					_MySum = 1000;
 					queryStruct._qResult = 0;
 				}
 				if (count == 2)
 				{
-					_MyID = 2001;
+					_MyID = 2000;
 					_MyQuery = 3;
 					queryStruct._qResult = 0;
 				}
@@ -381,7 +406,7 @@ int main(int argc, char **argv)
 				{
 					_MyID = 1000;
 					_MyQuery = 2;
-					_MySum = 5000;
+					_MySum = 5;
 					queryStruct._qResult = 0;
 				}
 				if (count == 4)
@@ -402,13 +427,13 @@ int main(int argc, char **argv)
 				}
 				if (count == 1)
 				{
-					_MyID = 2000;
+					_MyID = 2001;
 					_MyQuery = 3;
 					queryStruct._qResult = 0;
 				}
 				if (count == 2)
 				{
-					_MyID = 2000;
+					_MyID = 2001;
 					_MyQuery = 3;
 					queryStruct._qResult = 0;
 				}
@@ -472,6 +497,7 @@ int main(int argc, char **argv)
 			queryStruct._qSum = _MySum;
 
 			// Печать результатов
+			// Print of results
 			if (queryStruct._qResult == 0)
 			{
 				//
@@ -492,9 +518,11 @@ int main(int argc, char **argv)
 				//
 
 				// Отправить запрос банку
+				// Send query to bank
 				MPI_Send(&queryStruct, 1, queryType, _myBank, msgtag, MPI_COMM_WORLD);
 
 				// Получить ответ за запрос
+				// Receive answer from bank
 				MPI_Recv(&queryStruct, 1, queryType, _myBank, msgtag, MPI_COMM_WORLD, &status);
 					
 				//
@@ -516,13 +544,10 @@ int main(int argc, char **argv)
 				fclose(f3);
 				//
 
-				
-				//printf("Terminal(%d) %s\n", rank, queryStruct._qText);
 			}
 			count++;
 			if (count > 4 && rank >= _rankT)
 			{
-				// проблема
 				queryStruct._qResult = -2;
 				for(int i = 1; i <= _bankN; i++)
 					MPI_Send(&queryStruct, 1, queryType, i, msgtag, MPI_COMM_WORLD);
@@ -530,9 +555,7 @@ int main(int argc, char **argv)
 				break;
 			}
 		}
-		
-		/*if (_flag == false)
-			break;*/
+
 	} // Конец while
 
 	FILE *f3;
@@ -556,7 +579,6 @@ int main(int argc, char **argv)
 	{
 
 	}
-	//printf("I'm proc #: %d\n", rank);
 	MPI_Type_free(&queryType);
 	MPI_Finalize();
 	return 0;
